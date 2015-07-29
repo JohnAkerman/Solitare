@@ -51,6 +51,7 @@
 
 		var pressed = false;
 		var gravity = true;
+		var water = false;
 
 		function init() {
 			canvas.height = window.innerHeight;
@@ -190,6 +191,8 @@
 
 				ctx.save();
 				ctx.translate(this.x,this.y);
+
+
 				if (this.colour == 0)
 					ctx.fillStyle="red";
 				else if (this.colour == 1)
@@ -199,6 +202,9 @@
 				else if (this.colour == 3)
 					ctx.fillStyle="blue";
 
+				if (water) {
+					ctx.fillStyle = "rgba(139,193,254,0.1)"
+				}
 				ctx.fillRect(0, 0, cardSizeX, cardSizeY);
 				ctx.restore();
 
@@ -272,6 +278,9 @@
 
 				if (e.keyCode == 71) // G Key 
 					gravity = !gravity;
+
+				if (e.keyCode == 87) // W Key
+					water = !water;
 			})
 
 		})
