@@ -202,11 +202,6 @@
 			$(document).on("mouseup touchend", function(e) {
 				pressed = false;
 
-				if (e.originalEvent.type == "touchend") {
-					if (e.originalEvent.touches.length >= 3) {
-						cards = [];
-					}
-				}
 			});
 
 			$(document).on("mousedown touchstart", function(e) {
@@ -222,6 +217,12 @@
 
 				addCard(x - cardSizeX / 2, y - cardSizeY / 2 ,cards.length);
 				pressed = true;
+				
+				if (e.originalEvent.type == "touchstart") {
+					if (e.originalEvent.touches.length >= 3) {
+						cards = [];
+					}
+				}
 			})
 
 			$(document).on("mousemove touchmove", function(e) {
