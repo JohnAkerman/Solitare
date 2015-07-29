@@ -1,0 +1,112 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head>  
+	<Title>Solitare</Title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+
+	<style> html, body { margin: 0; padding: 0;} body { height: 100%; } </style>
+
+	<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+
+
+	<script type="text/javascript">
+		"use strict"
+
+		var height = 0;
+		var width = 0;
+		var canvas = document.createElement("canvas");
+		var ctx = null;
+
+		// FPS 
+		var lastTime;
+		var frames;
+		var totalTime;
+		var updateTime;
+		var updateFrames;
+		var lastCurAmount;
+		var curAmount;				
+		var then = Date.now();
+
+		function init() {
+			canvas.height = window.innerHeight;
+			canvas.width = window.innerWidth;
+
+			if (canvas.getContext) {
+				document.getElementById("game").appendChild(canvas);
+				ctx = canvas.getContext("2d");
+				ctx.save();
+
+				window.scrollTo(-1 ,0 );
+
+				GameLoop();
+			}
+			else alert("Unsupported");
+		}
+
+		var requestAnimFrame =  window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function(/* function */ callback){
+			window.setTimeout(callback, 1000 / 60);
+		};
+
+		function GameUpdate(delta) {
+
+		}
+
+		// Game update
+		function GameLoop() {
+			var now = Date.now();
+			var delta = now - then;
+
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.fillStyle = "#0b8b36";
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+			var now = (new Date()).getTime();
+			deltaFPS = now - lastTime;
+			lastTime = now;
+			totalTime += deltaFPS;
+			frames++;
+			updateTime += deltaFPS;
+			updateFrames++;
+
+			GameUpdate(delta / 1000);
+			
+			if(updateTime > 1000) {
+				updateTime = 0;
+				updateFrames = 0;
+			}			
+
+			lastCurAmount = curAmount;
+			curAmount = Math.round(1000 * updateFrames / updateTime);
+
+			if (isNaN(curAmount))
+				curAmount = lastCurAmount;
+			
+			drawString("FPS Avg: " + Math.round(1000 * frames / totalTime) + " Cur: " + curAmount, 5, 20, 12);
+
+			then = now;				
+			requestAnimFrame(GameLoop);				
+		}
+
+		function drawString(textIn,xIn,yIn, sizeIn) {
+			ctx.fillStyle = "white";				
+			ctx.font= "bold " + sizeIn + "px Arial";
+			ctx.textBaseline = "bottom";
+			ctx.fillText(textIn, xIn, yIn);
+		}
+
+		$(document).ready(function() {
+			init();
+		})
+	</script>
+</head>
+
+<body>
+	<div id="game"></div>
+</body>
+</html>
+
