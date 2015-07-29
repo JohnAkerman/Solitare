@@ -130,13 +130,13 @@
 
 		// Cards
 		function renderCards() {
-			for (var i = 0, l = cards.length; i < l; i++) {
+			for (var i = 0; i < cards.length; i++) {
 				cards[i].render();
 			}
 		}
 
 		function updateCards() {
-			for (var i = 0, l = cards.length; i < l; i++) {
+			for (var i = 0; i < cards.length; i++) {
 				cards[i].update();
 			}
 		}
@@ -150,6 +150,7 @@
 			this.vx = Math.floor( Math.random() * 6 - 3 ) * 2;
 			this.vy = Math.random() * 16;
 			this.colour = Math.floor(Math.random() * 3) + 1;
+			this.that = this;
 
 			this.update = function() {
 				if (!this.active) return;
@@ -164,12 +165,12 @@
 					}
 
 					if ( this.y  > canvas.height )
-						this.active = false;
+						this.remove();
 
 					this.vy += 0.55;
 
 					if (this.vy <= 0.01 && this.vy > -0.01)
-						this.active = false;
+						this.remove();
 				}
 
 				this.checkBounds();
@@ -177,10 +178,10 @@
 
 			this.checkBounds = function() {
 				if (this.x < 0 || this.x > canvas.width)
-					this.active = false;
+					this.remove();
 
 				if (this.y < 0 || this.y > canvas.height)
-					this.active = false;
+					this.remove();
 
 			}
 
@@ -206,7 +207,9 @@
 			}
 
 			this.remove = function() {
-
+				this.active = false;
+				var i = cards.indexOf(this.that);
+				cards.splice(i, 1);
 			}
 		}
 
