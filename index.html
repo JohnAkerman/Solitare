@@ -206,7 +206,12 @@
 			$(document).on("mousedown touchstart", function(e) {
 				e.preventDefault();
 
+				console.log(e);
+
 				if (e.originalEvent.type == "touchstart") {
+					if (e.originalEvent.touches.length >= 3) {
+						cards = [];
+					}
 					var x = e.originalEvent.changedTouches[0].pageX;
 					var y = e.originalEvent.changedTouches[0].pageY;
 				} else {
