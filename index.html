@@ -206,7 +206,7 @@
 			$(document).on("mousedown touchstart", function(e) {
 				e.preventDefault();
 
-				if (e.originalEvent !== undefined) {
+				if (e.originalEvent.type == "touchstart") {
 					var x = e.originalEvent.changedTouches[0].pageX;
 					var y = e.originalEvent.changedTouches[0].pageY;
 				} else {
@@ -223,7 +223,7 @@
 				
 				e.preventDefault();
 
-				if (e.originalEvent !== undefined) {
+				if (e.originalEvent.type == "touchmove") {
 					var x = e.originalEvent.changedTouches[0].pageX;
 					var y = e.originalEvent.changedTouches[0].pageY;
 				} else {
