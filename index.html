@@ -52,6 +52,7 @@
 		var pressed = false;
 		var gravity = true;
 		var water = false;
+		var debug = false;
 
 		function init() {
 			canvas.height = window.innerHeight;
@@ -231,10 +232,11 @@
 				ctx.fillRect(0, 0, cardSizeX, cardSizeY);
 				ctx.restore();
 
-				drawString("VX:" + this.vx, this.x + cardSizeX / 2 - 25, this.y + cardSizeY / 2, 12);
-				drawString("VY:" + this.vy, this.x + cardSizeX / 2 - 25, this.y + 20 + cardSizeY / 2, 12);
-				drawString("L:" + this.life, this.x + cardSizeX / 2 - 25, this.y - 40 + cardSizeY / 2, 12);
-
+				if (debug) {
+					drawString("VX:" + this.vx, this.x + cardSizeX / 2 - 25, this.y + cardSizeY / 2, 12);
+					drawString("VY:" + this.vy, this.x + cardSizeX / 2 - 25, this.y + 20 + cardSizeY / 2, 12);
+					drawString("L:" + this.life, this.x + cardSizeX / 2 - 25, this.y - 40 + cardSizeY / 2, 12);
+				}
 			}
 
 			this.remove = function() {
@@ -306,6 +308,9 @@
 
 				if (e.keyCode == 87) // W Key
 					water = !water;
+
+				if (e.keyCode == 68) // D Key
+					debug = !debug;
 			})
 
 		})
