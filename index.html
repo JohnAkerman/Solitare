@@ -9,8 +9,6 @@
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 
-
-
 	<style>
 		* {
 			-webkit-box-sizing: border-box;
@@ -46,6 +44,7 @@
 		var lastCurAmount;
 		var curAmount;				
 		var then = Date.now();
+		var cards = [];
 
 		function init() {
 			canvas.height = window.innerHeight;
@@ -58,7 +57,7 @@
 
 				lastTime = (new (Date)).getTime();
 				frames = totalTime = updateTime = updateFrames = 0;
-				
+
 				window.scrollTo(-1 ,0 );
 
 				GameLoop();
@@ -94,6 +93,10 @@
 			updateFrames++;
 
 			GameUpdate(delta / 1000);
+
+			updateCards();
+
+			renderCards();
 			
 			if(updateTime > 1000) {
 				updateTime = 0;
@@ -117,6 +120,75 @@
 			ctx.font= "bold " + sizeIn + "px Arial";
 			ctx.textBaseline = "bottom";
 			ctx.fillText(textIn, xIn, yIn);
+		}
+
+		// Cards
+		function renderCards() {
+			for (var i = 0, l = cards.length; i < l; i++) {
+				cards[i].render();
+			}
+		}
+
+		function updateCards() {
+			for (var i = 0, l = cards.length; i < l; i++) {
+				cards[i].update();
+			}
+		}
+
+		function Card(x, y, id) {
+
+			this.x = x;
+			this.y = y;
+			this.active = true;
+			this.id = id;
+			this.vx = 0;
+			this.vy = 0;
+			this.life = 2000;
+			this.colour = Math.floor(Math.random() * 3) + 1;
+
+
+			this.update = function() {
+				if (!this.active) return;
+
+				this.x += this.vx;
+				this.y += this.vy;
+
+				this.life--;
+
+				this.checkBounds();
+			}
+
+			this.checkBounds = function() {
+				if (this.x < 0 || this.x > canvas.width)
+					this.active = false;
+
+				if (this.y < 0 || this.y > canvas.height)
+					this.active = false;
+
+			}
+
+			this.render = function() {
+				if (!this.active) return;
+
+				ctx.save();
+				ctx.translate(this.x,this.y);
+				if (this.colour == 0)
+					ctx.fillStyle="red";
+				else if (this.colour == 1)
+					ctx.fillStyle="yellow";
+				else if (this.colour == 2)
+					ctx.fillStyle="green";
+				else if (this.colour == 3)
+					ctx.fillStyle="blue";
+
+				ctx.fillRect(0,0,70,100);
+				ctx.restore();
+			}
+		}
+
+		function addCard(x,y,id) {
+			var c = new Card(x,y,id);
+			cards.push(c);
 		}
 
 		$(document).ready(function() {
