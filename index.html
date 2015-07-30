@@ -149,8 +149,8 @@
 			this.y = y;
 			this.active = true;
 			this.id = id;
-			this.vx = Math.floor( Math.random() * 6 - 3 ) * 2;
-			this.vy = Math.floor( Math.random() * 16 );
+			this.vx = Math.floor( (Math.random() * 10) + 2 );
+			this.vy = Math.floor( (Math.random() * 10) + 5 );
 			this.colour = Math.floor(Math.random() * 3) + 1;
 			this.that = this;
 			this.life = 150;
@@ -166,9 +166,10 @@
 					this.x += this.vx;
 					this.y += this.vy;
 
-					if ( this.y + cardSizeY > canvas.height) {
+					if ( this.y + cardSizeY >= canvas.height) {
 						this.vy *= -.75;
 					}
+
 
 					if (Math.abs(this.vy) < 0.3 && Math.abs(this.vx) < 0.3 && this.y + cardSizeY + 2 > canvas.height)  {
 						this.vy = 0;
@@ -179,15 +180,15 @@
 						this.vy += 0.55;
 					}
 
-					if ( this.y  > canvas.height )
-						this.remove();
+					// if ( this.y  > canvas.height )
+					// 	this.remove();
 
 
-					if (this.vx > 0.01) {
-						this.vx -= 0.01;
-					} else if (this.vx < 0.01) {
-						this.vx += 0.01;
-					}
+					// if (this.vx > 0.01) {
+					// 	this.vx -= 0.01;
+					// } else if (this.vx < 0.01) {
+					// 	this.vx += 0.01;
+					// }
 
 					// if (this.vy <= 0.01 && this.vy > -0.01)
 					// 	this.remove();
