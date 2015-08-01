@@ -312,7 +312,12 @@
 
 				if (e.keyCode == 68) // D Key
 					debug = !debug;
-			})
+			});
+
+			$(window).resize(function() {
+				canvas.width = window.innerWidth;
+				canvas.height = window.innerHeight;
+			});
 
 		})
 </script>
