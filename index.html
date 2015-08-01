@@ -53,6 +53,7 @@
 		var gravity = true;
 		var water = false;
 		var debug = false;
+		var clearBuffer = true;
 
 		var cardImage = new Image();
 		cardImage.src = "cards.png";
@@ -70,6 +71,10 @@
 				frames = totalTime = updateTime = updateFrames = 0;
 
 				window.scrollTo(-1 ,0 );
+
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				ctx.fillStyle = "#0b8b36";
+				ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 				GameLoop();
 			}
@@ -89,10 +94,11 @@
 			var now = Date.now();
 			var delta = now - then;
 
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
-			ctx.fillStyle = "#0b8b36";
-			ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+			if (clearBuffer) {
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				ctx.fillStyle = "#0b8b36";
+				ctx.fillRect(0, 0, canvas.width, canvas.height);
+			}
 			var now = (new Date()).getTime();
 			var deltaFPS;
 
@@ -319,6 +325,9 @@
 
 				if (e.keyCode == 68) // D Key
 					debug = !debug;
+
+				if (e.keyCode == 66) // B Key
+					clearBuffer = !clearBuffer;
 			});
 
 			$(window).resize(function() {
