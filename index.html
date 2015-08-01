@@ -46,13 +46,16 @@
 		var then = Date.now();
 
 		var cards = [];
-		var cardSizeX = 70;
-		var cardSizeY = 100;
+		var cardSizeX = 79;
+		var cardSizeY = 123;
 
 		var pressed = false;
 		var gravity = true;
 		var water = false;
 		var debug = false;
+
+		var cardImage = new Image();
+		cardImage.src = "cards.png";
 
 		function init() {
 			canvas.height = window.innerHeight;
@@ -151,13 +154,18 @@
 			this.active = true;
 			this.id = id;
 			this.vx = (Math.floor( (Math.random() * 10) + 2 ))   *    plusOrMinus;
-			this.vy = Math.floor( (Math.random() * 10) + 5 );
+			this.vy = Math.floor( (Math.random() * 16) - 2);
 			this.colour = Math.floor(Math.random() * 3) + 1;
 			this.that = this;
 			this.life = 150;
 
+			this.cardFace = Math.floor(Math.random() * 13);
+			this.cardSuit = Math.floor(Math.random() * 3);
 
+			// Calculate card face - 13 max
 
+			this.cardX = cardSizeX * this.cardFace;
+			this.cardY = cardSizeY * this.cardSuit;
 
 			this.update = function() {
 				if (!this.active) return;
@@ -187,7 +195,7 @@
 						this.x = 1;
 					}
 					
-					this.vy += 0.55;
+					this.vy += Math.random();
 	
 				}
 
@@ -229,7 +237,7 @@
 					ctx.fillStyle = "rgba(139,193,254,0."+this.life * 0.05+")"
 				}
 
-				ctx.fillRect(0, 0, cardSizeX, cardSizeY);
+				ctx.drawImage(cardImage, this.cardX, this.cardY, cardSizeX, cardSizeY, 0, 0, cardSizeX, cardSizeY);
 				ctx.restore();
 
 				if (debug) {
