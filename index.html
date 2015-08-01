@@ -48,6 +48,7 @@
 		var cards = [];
 		var cardSizeX = 79;
 		var cardSizeY = 123;
+		var cardDeck = 52;
 
 		var pressed = false;
 		var gravity = true;
@@ -98,6 +99,10 @@
 				ctx.clearRect(0, 0, canvas.width, canvas.height);
 				ctx.fillStyle = "#0b8b36";
 				ctx.fillRect(0, 0, canvas.width, canvas.height);
+			} else {
+				ctx.clearRect(0, 0, 300, 25);
+				ctx.fillStyle = "#0b8b36";
+				ctx.fillRect(0, 0, 300, 25);
 			}
 			var now = (new Date()).getTime();
 			var deltaFPS;
@@ -167,6 +172,15 @@
 
 			this.cardFace = Math.floor(Math.random() * 13);
 			this.cardSuit = Math.floor(Math.random() * 3);
+
+			// Use card deck
+			if (cardDeck == 0)
+				cardDeck = 52;
+			else 
+				cardDeck--;
+
+			this.cardFace = Math.floor(cardDeck / 4);
+			this.cardSuit = Math.floor(cardDeck % 4);
 
 			// Calculate card face - 13 max
 
@@ -265,6 +279,14 @@
 			cards.push(c);
 		}
 
+		function cardExplosion() {
+			for(var i = 1, l = 52; i < l; i++) {
+				setTimeout( function() {
+					addCard(canvas.width / 2, canvas.height / 10 ,i);
+				}, 20 * i);
+			}
+		}
+
 		$(document).ready(function() {
 			init();
 
@@ -315,6 +337,9 @@
 				// If Space pressed
 				if (e.keyCode == 32) {
 					cards = [];
+					ctx.clearRect(0, 0, canvas.width, canvas.height);
+					ctx.fillStyle = "#0b8b36";
+					ctx.fillRect(0, 0, canvas.width, canvas.height);
 				}
 
 				if (e.keyCode == 71) // G Key 
@@ -328,6 +353,9 @@
 
 				if (e.keyCode == 66) // B Key
 					clearBuffer = !clearBuffer;
+
+				if (e.keyCode == 13) // Enter Key
+					cardExplosion();
 			});
 
 			$(window).resize(function() {
