@@ -37,6 +37,9 @@
 		var canvas = document.createElement("canvas");
 		var ctx = null;
 
+		var offScreenCanvas = document.createElement("canvas");
+		var offscreenCtx = null;
+
 		// FPS 
 		var lastTime;
 		var frames;
@@ -65,19 +68,25 @@
 			canvas.height = window.innerHeight;
 			canvas.width = window.innerWidth;
 
+			offScreenCanvas.height = canvas.height;
+			offScreenCanvas.width = canvas.width;
+
 			if (canvas.getContext) {
 				document.getElementById("game").appendChild(canvas);
 				ctx = canvas.getContext("2d");
 				ctx.save();
+
+				offscreenCtx = offScreenCanvas.getContext("2d");
+				offscreenCtx.save();
 
 				lastTime = (new (Date)).getTime();
 				frames = totalTime = updateTime = updateFrames = 0;
 
 				window.scrollTo(-1 ,0 );
 
-				ctx.clearRect(0, 0, canvas.width, canvas.height);
-				ctx.fillStyle = "#0b8b36";
-				ctx.fillRect(0, 0, canvas.width, canvas.height);
+				offscreenCtx.clearRect(0, 0, canvas.width, canvas.height);
+				offscreenCtx.fillStyle = "#0b8b36";
+				offscreenCtx.fillRect(0, 0, canvas.width, canvas.height);
 
 				GameLoop();
 			}
@@ -98,13 +107,13 @@
 			var delta = now - then;
 
 			if (clearBuffer) {
-				ctx.clearRect(0, 0, canvas.width, canvas.height);
-				ctx.fillStyle = "#0b8b36";
-				ctx.fillRect(0, 0, canvas.width, canvas.height);
+				offscreenCtx.clearRect(0, 0, canvas.width, canvas.height);
+				offscreenCtx.fillStyle = "#0b8b36";
+				offscreenCtx.fillRect(0, 0, canvas.width, canvas.height);
 			} else {
-				ctx.clearRect(0, 0, 300, 25);
-				ctx.fillStyle = "#0b8b36";
-				ctx.fillRect(0, 0, 300, 25);
+				offscreenCtx.clearRect(0, 0, 300, 25);
+				offscreenCtx.fillStyle = "#0b8b36";
+				offscreenCtx.fillRect(0, 0, 300, 25);
 			}
 			var now = (new Date()).getTime();
 			var deltaFPS;
@@ -121,7 +130,14 @@
 			updateCards();
 
 			renderCards();
+
+			drawString("FPS Avg: " + Math.round(1000 * frames / totalTime) + " Cur: " + curAmount + " Card Count: " + cards.length + " Gravity: " + gravity, 5, 20, 12);
 			
+
+			// Draw offscreen buffer;
+			ctx.clearRect(0, 0, offScreenCanvas.width, offScreenCanvas.height);
+			ctx.drawImage(offScreenCanvas, 0, 0);
+
 			if(updateTime > 1000) {
 				updateTime = 0;
 				updateFrames = 0;
@@ -132,18 +148,16 @@
 
 			if (isNaN(curAmount))
 				curAmount = lastCurAmount;
-			
-			drawString("FPS Avg: " + Math.round(1000 * frames / totalTime) + " Cur: " + curAmount + " Card Count: " + cards.length + " Gravity: " + gravity, 5, 20, 12);
 
 			then = now;				
 			requestAnimFrame(GameLoop);				
 		}
 
 		function drawString(textIn,xIn,yIn, sizeIn) {
-			ctx.fillStyle = "white";				
-			ctx.font= "bold " + sizeIn + "px Arial";
-			ctx.textBaseline = "bottom";
-			ctx.fillText(textIn, xIn, yIn);
+			offscreenCtx.fillStyle = "white";				
+			offscreenCtx.font= "bold " + sizeIn + "px Arial";
+			offscreenCtx.textBaseline = "bottom";
+			offscreenCtx.fillText(textIn, xIn, yIn);
 		}
 
 		// Cards
@@ -236,31 +250,31 @@
 			this.render = function() {
 				if (!this.active) return;
 
-				ctx.save();
-				ctx.translate(this.x,this.y);
+				offscreenCtx.save();
+				offscreenCtx.translate(this.x,this.y);
 
 
-				if (this.colour == 0)
-					ctx.fillStyle="red";
-				else if (this.colour == 1)
-					ctx.fillStyle="yellow";
-				else if (this.colour == 2)
-					ctx.fillStyle="red";
-				else if (this.colour == 3)
-					ctx.fillStyle="blue";
-				else if (this.colour == 4)
-					ctx.fillStyle="pink";
+				// if (this.colour == 0)
+				// 	ctx.fillStyle="red";
+				// else if (this.colour == 1)
+				// 	ctx.fillStyle="yellow";
+				// else if (this.colour == 2)
+				// 	ctx.fillStyle="red";
+				// else if (this.colour == 3)
+				// 	ctx.fillStyle="blue";
+				// else if (this.colour == 4)
+				// 	ctx.fillStyle="pink";
 
-				if (water) {
-					ctx.fillStyle = "rgba(139,193,254,0.1)"
-				}
+				// if (water) {
+				// 	ctx.fillStyle = "rgba(139,193,254,0.1)"
+				// }
 
-				if (this.life < 150) {
-					ctx.fillStyle = "rgba(139,193,254,0."+this.life * 0.05+")"
-				}
+				// if (this.life < 150) {
+				// 	ctx.fillStyle = "rgba(139,193,254,0."+this.life * 0.05+")"
+				// }
 
-				ctx.drawImage(cardImage, this.cardX, this.cardY, cardSizeX, cardSizeY, 0, 0, cardSizeX, cardSizeY);
-				ctx.restore();
+				offscreenCtx.drawImage(cardImage, Math.floor(this.cardX), Math.floor(this.cardY), cardSizeX, cardSizeY, 0, 0, cardSizeX, cardSizeY);
+				offscreenCtx.restore();
 
 				if (debug) {
 					drawString("VX:" + this.vx, this.x + cardSizeX / 2 - 25, this.y + cardSizeY / 2, 12);
@@ -370,9 +384,9 @@
 
 			function clearScreen() {
 				cards = [];
-				ctx.clearRect(0, 0, canvas.width, canvas.height);
-				ctx.fillStyle = "#0b8b36";
-				ctx.fillRect(0, 0, canvas.width, canvas.height);
+				offscreenCtx.clearRect(0, 0, canvas.width, canvas.height);
+				offscreenCtx.fillStyle = "#0b8b36";
+				offscreenCtx.fillRect(0, 0, canvas.width, canvas.height);
 			}
 
 		})
