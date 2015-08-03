@@ -302,11 +302,11 @@
 
 		function touchHandler(e) {
 			if (e.originalEvent.type == "touchstart" || e.originalEvent.type == "touchmove") {
-				for (var i = 0, l = e.originalEvent.changedTouches.length; i < l; i++) {
-					var x = e.originalEvent.changedTouches[i].pageX;
-					var y = e.originalEvent.changedTouches[i].pageY;
+				//for (var i = 0, l = e.originalEvent.changedTouches.length; i < l; i++) {
+					var x = e.originalEvent.changedTouches[0].pageX;
+					var y = e.originalEvent.changedTouches[0].pageY;
 					addCard(x - cardSizeXHalf, y - cardSizeYHalf, cards.length);
-				}
+				//}
 			} else {
 				var x = e.clientX;
 				var y = e.clientY;
