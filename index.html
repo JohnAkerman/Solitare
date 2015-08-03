@@ -250,31 +250,11 @@
 			this.render = function() {
 				if (!this.active) return;
 
-				offscreenCtx.save();
-				offscreenCtx.translate(this.x,this.y);
+				//offscreenCtx.save();
+				//offscreenCtx.translate(this.x,this.y);
 
-
-				// if (this.colour == 0)
-				// 	ctx.fillStyle="red";
-				// else if (this.colour == 1)
-				// 	ctx.fillStyle="yellow";
-				// else if (this.colour == 2)
-				// 	ctx.fillStyle="red";
-				// else if (this.colour == 3)
-				// 	ctx.fillStyle="blue";
-				// else if (this.colour == 4)
-				// 	ctx.fillStyle="pink";
-
-				// if (water) {
-				// 	ctx.fillStyle = "rgba(139,193,254,0.1)"
-				// }
-
-				// if (this.life < 150) {
-				// 	ctx.fillStyle = "rgba(139,193,254,0."+this.life * 0.05+")"
-				// }
-
-				offscreenCtx.drawImage(cardImage, Math.floor(this.cardX), Math.floor(this.cardY), cardSizeX, cardSizeY, 0, 0, cardSizeX, cardSizeY);
-				offscreenCtx.restore();
+				offscreenCtx.drawImage(cardImage, Math.floor(this.cardX), Math.floor(this.cardY), cardSizeX, cardSizeY, Math.floor(this.x), Math.floor(this.y), cardSizeX, cardSizeY);
+				//offscreenCtx.restore();
 
 				if (debug) {
 					drawString("VX:" + this.vx, this.x + cardSizeX / 2 - 25, this.y + cardSizeY / 2, 12);
