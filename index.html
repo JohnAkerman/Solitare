@@ -324,6 +324,14 @@
 			$(document).on("mousedown touchstart", function(e) {
 				e.preventDefault();
 
+				if (e.originalEvent.type == "touchstart") {
+					if (e.originalEvent.touches.length >= 3) {
+						clearBuffer = false;
+						cardExplosion();
+						return;
+					}
+				}
+
 				touchHandler(e);
 
 				pressed = true;
