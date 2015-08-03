@@ -25,10 +25,12 @@
 	</style>
 
 	<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+	<script src="shake.js"></script>
 
 
 	<script type="text/javascript">
 		"use strict"
+
 
 		var height = 0;
 		var width = 0;
@@ -336,10 +338,7 @@
 
 				// If Space pressed
 				if (e.keyCode == 32) {
-					cards = [];
-					ctx.clearRect(0, 0, canvas.width, canvas.height);
-					ctx.fillStyle = "#0b8b36";
-					ctx.fillRect(0, 0, canvas.width, canvas.height);
+					clearScreen();
 				}
 
 				if (e.keyCode == 71) // G Key 
@@ -362,6 +361,19 @@
 				canvas.width = window.innerWidth;
 				canvas.height = window.innerHeight;
 			});
+
+			window.addEventListener('shake', shakeEventDidOccur, false);
+
+			function shakeEventDidOccur() {
+				clearScreen();
+			}
+
+			function clearScreen() {
+				cards = [];
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				ctx.fillStyle = "#0b8b36";
+				ctx.fillRect(0, 0, canvas.width, canvas.height);
+			}
 
 		})
 </script>
