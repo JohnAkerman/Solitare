@@ -68,6 +68,7 @@
 		var water = false;
 		var debug = false;
 		var clearBuffer = true;
+		var horizontalCheck = true;
 
 		var cardImage = new Image();
 		cardImage.src = "cards.png";
@@ -238,15 +239,18 @@
 					}
 
 					// Horizontal Collision
-					if (Math.abs(this.vy) >= 2 && this.x + cardSizeX >= canvasWidth) {
-						this.x = canvasWidth - 1 - cardSizeX;
-						this.vx *= -.75;
+					if (horizontalCheck) {
+						if (Math.abs(this.vy) >= 2 && this.x + cardSizeX >= canvasWidth) {
+							this.x = canvasWidth - 1 - cardSizeX;
+							this.vx *= -.75;
+						}
+
+						if (this.x <= 0 && Math.abs(this.vy) >= 2) {
+							this.vx *= -.75;
+							this.x = 1;
+						}
 					}
 
-					if (this.x <= 0 && Math.abs(this.vy) >= 2) {
-						this.vx *= -.75;
-						this.x = 1;
-					}
 					
 					this.vy += Math.random();
 	
@@ -361,15 +365,28 @@
 
 				if (e.keyCode == 13) // Enter Key
 					cardExplosion();
+
+				if (e.keyCode == 88) // X key
+					horizontalCheck = !horizontalCheck;
 			});
 
 			$(window).resize(function() {
 				updateCanvasSizes();
 			});
 
+			 //create a new instance of shake.js.
+			var myShakeEvent = new Shake({
+				threshold: 15
+			});
+
+			// start listening to device motion
+			myShakeEvent.start();
+
+			// register a shake event
 			window.addEventListener('shake', shakeEventDidOccur, false);
 
-			function shakeEventDidOccur() {
+			//shake event callback
+			function shakeEventDidOccur () {
 				clearScreen();
 			}
 
