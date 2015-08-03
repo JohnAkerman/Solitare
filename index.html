@@ -300,6 +300,20 @@
 			}
 		}
 
+		function touchHandler(e) {
+			if (e.originalEvent.type == "touchstart" || e.originalEvent.type == "touchmove") {
+				for (var i = 0, l = e.originalEvent.changedTouches.length; i < l; i++) {
+					var x = e.originalEvent.changedTouches[i].pageX;
+					var y = e.originalEvent.changedTouches[i].pageY;
+					addCard(x - cardSizeXHalf, y - cardSizeYHalf, cards.length);
+				}
+			} else {
+				var x = e.clientX;
+				var y = e.clientY;
+				addCard(x - cardSizeXHalf, y - cardSizeYHalf, cards.length);
+			}
+		}
+
 		$(document).ready(function() {
 			init();
 
@@ -310,17 +324,7 @@
 			$(document).on("mousedown touchstart", function(e) {
 				e.preventDefault();
 
-				if (e.originalEvent.type == "touchstart") {
-					for (var i = 0, l = e.originalEvent.changedTouches.length; i < l; i++) {
-						var x = e.originalEvent.changedTouches[i].pageX;
-						var y = e.originalEvent.changedTouches[i].pageY;
-						addCard(x - cardSizeXHalf, y - cardSizeYHalf, cards.length);
-					}
-				} else {
-					var x = e.clientX;
-					var y = e.clientY;
-					addCard(x - cardSizeXHalf, y - cardSizeYHalf, cards.length);
-				}
+				touchHandler(e);
 
 				pressed = true;
 			});
@@ -330,17 +334,7 @@
 				
 				e.preventDefault();
 				
-				if (e.originalEvent.type == "touchstart") {
-					for (var i = 0, l = e.originalEvent.changedTouches.length; i < l; i++) {
-						var x = e.originalEvent.changedTouches[i].pageX;
-						var y = e.originalEvent.changedTouches[i].pageY;
-						addCard(x - cardSizeXHalf, y - cardSizeYHalf, cards.length);
-					}
-				} else {
-					var x = e.clientX;
-					var y = e.clientY;
-					addCard(x - cardSizeXHalf, y - cardSizeYHalf, cards.length);
-				}
+				touchHandler(e);
 			});
 
 			$(document).on("keydown", function(e) {
