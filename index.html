@@ -31,7 +31,6 @@
 	<script type="text/javascript">
 		"use strict"
 
-
 		var height = 0;
 		var width = 0;
 		var canvas = document.createElement("canvas");
@@ -65,7 +64,7 @@
 
 		var pressed = false;
 		var gravity = true;
-		var water = false;
+		var wireframe = false;
 		var debug = false;
 		var clearBuffer = true;
 		var horizontalCheck = true;
@@ -117,10 +116,6 @@
 		var requestAnimFrame =  window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function(/* function */ callback){
 			window.setTimeout(callback, 1000 / 60);
 		};
-
-		function GameUpdate(delta) {
-
-		}
 
 		function GameLoop() {
 			var now = Date.now();
@@ -218,8 +213,8 @@
 			this.cardSuit = Math.floor(cardDeck % 4);
 
 			// Calculate card face - 13 max
-			this.cardX = cardSizeX * this.cardFace;
-			this.cardY = cardSizeY * this.cardSuit;
+			this.cardX = 79 * this.cardFace;
+			this.cardY = 123 * this.cardSuit;
 
 			this.update = function() {
 				if (!this.active) return;
@@ -271,7 +266,12 @@
 			this.render = function() {
 				if (!this.active) return;
 
-				offscreenCtx.drawImage(cardImage, Math.floor(this.cardX), Math.floor(this.cardY), cardSizeX, cardSizeY, Math.floor(this.x), Math.floor(this.y), cardSizeX, cardSizeY);
+				if (wireframe) {
+					offscreenCtx.fillStyle = "red";
+					offscreenCtx.fillRect(Math.floor(this.x), Math.floor(this.y), cardSizeX, cardSizeY);
+				}
+				else
+					offscreenCtx.drawImage(cardImage, Math.floor(this.cardX), Math.floor(this.cardY), 79, 123, Math.floor(this.x), Math.floor(this.y), cardSizeX, cardSizeY);
 
 				if (debug) {
 					drawString("VX:" + this.vx, this.x + cardSizeX / 2 - 25, this.y + cardSizeY / 2, 12);
@@ -312,6 +312,22 @@
 				var y = e.clientY;
 				addCard(x - cardSizeXHalf, y - cardSizeYHalf, cards.length);
 			}
+		}
+
+		function decreaseCardSize() {
+			if (cardSizeX < 5 && cardSizeY < 5)  return;
+
+			cardSizeX *= 0.9;
+			cardSizeY *= 0.9;
+			cardSizeXHalf = Math.floor(cardSizeX * 0.5);
+			cardSizeYHalf = Math.floor(cardSizeY * 0.5);
+		}
+
+		function increaseCardSize() {
+			cardSizeX *= 1.1;
+			cardSizeY *= 1.1;
+			cardSizeXHalf = Math.floor(cardSizeX * 0.5);
+			cardSizeYHalf = Math.floor(cardSizeY * 0.5);
 		}
 
 		$(document).ready(function() {
@@ -356,7 +372,7 @@
 					gravity = !gravity;
 
 				if (e.keyCode == 87) // W Key
-					water = !water;
+					wireframe = !wireframe;
 
 				if (e.keyCode == 68) // D Key
 					debug = !debug;
@@ -369,6 +385,12 @@
 
 				if (e.keyCode == 88) // X key
 					horizontalCheck = !horizontalCheck;
+
+				if (e.keyCode == 219) // [ key
+					decreaseCardSize();
+
+				if (e.keyCode == 221) // ] key
+					increaseCardSize();
 			});
 
 			$(window).resize(function() {
