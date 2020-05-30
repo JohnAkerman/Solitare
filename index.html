@@ -5,7 +5,6 @@
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 
@@ -24,13 +23,112 @@
 		}
 	</style>
 
-	<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+	<script src="//code.jquery.com/jquery-3.5.0.min.js"></script>
 	<script src="shake.js"></script>
-
 
 	<script type="text/javascript">
 		"use strict"
 
+		class Card {
+			constructor(x, y) {
+				this.leftOrRight = Math.random() < 0.5 ? -1 : 1;
+				this.x = x;
+				this.y = y;
+				this.active = true;
+				this.vx = (Math.floor((Math.random() * 10) + 2 )) * this.leftOrRight;
+				this.vy = Math.floor((Math.random() * 16) - 2);
+				this.colour = Math.floor(Math.random() * 3) + 1;
+				this.life = 150;
+
+				this.cardFace = Math.floor(Math.random() * 13);
+				this.cardSuit = Math.floor(Math.random() * 3);
+
+				// Use card deck
+				if (cardDeck == 0)
+					cardDeck = 52;
+				else 
+					cardDeck--;
+
+				this.cardFace = Math.floor(cardDeck * 0.25);
+				this.cardSuit = Math.floor(cardDeck % 4);
+
+				// Calculate card face - 13 max
+				this.cardX = cardSizeX * this.cardFace;
+				this.cardY = cardSizeY * this.cardSuit;
+			}
+
+			update() {
+				if (!this.active) return;
+				
+				if (this.life <= 0)
+					this.remove();
+
+				if (gravity) {
+					this.x += this.vx;
+					this.y += this.vy;
+
+					// Vertical collision
+					if ( this.y + cardSizeY >= canvasHeight) {
+						this.vy *= -.85;
+						this.y = canvasHeight - cardSizeY;
+						if (Math.abs(this.vy) < 2) this.vy = 0; // Prevent vertical wobble
+					}
+
+					// Horizontal Collision
+					if (horizontalCheck) {
+						if (Math.abs(this.vy) >= 2) {
+							if (this.x + cardSizeX >= canvasWidth) {
+								this.x = canvasWidth - 1 - cardSizeX;
+								this.vx *= -.75;
+							}
+	
+							if (this.x <= 0) {
+								this.vx *= -.75;
+								this.x = 1;
+							}
+						}
+					}
+					
+					this.vy += Math.random();
+				}
+
+				this.checkBounds();
+			}
+
+			checkBounds() {
+				if (this.x + cardSizeX < 0 || this.x > canvasWidth) {
+					this.remove();
+				}
+
+				if (this.y + (cardSizeY * 0.5) > canvasHeight) {
+					this.remove();
+				}
+			}
+
+			render() {
+				if (!this.active) return;
+
+				if (!wireframe) {
+					offscreenCtx.drawImage(cardImage, Math.floor(this.cardX), Math.floor(this.cardY), cardSizeX, cardSizeY, Math.floor(this.x), Math.floor(this.y), cardSizeX, cardSizeY);
+				} else {
+					offscreenCtx.beginPath();
+					offscreenCtx.rect(Math.floor(this.x), Math.floor(this.y), cardSizeX, cardSizeY);
+					offscreenCtx.stroke();
+				}
+
+				// if (debug) {
+				// 	drawString("VX:" + this.vx, this.x + cardSizeX / 2 - 25, this.y + cardSizeY / 2, 12);
+				// 	drawString("VY:" + Math.abs(this.vy), this.x + cardSizeX / 2 - 25, this.y + 20 + cardSizeY / 2, 12);
+				// 	drawString("L:" + this.life, this.x + cardSizeX / 2 - 25, this.y - 40 + cardSizeY / 2, 12);
+				// }
+			}
+
+			remove() {
+				this.active = false;
+				var i = cards.indexOf(this);
+				cards.splice(i, 1);
+			}
+		}
 
 		var height = 0;
 		var width = 0;
@@ -65,13 +163,17 @@
 
 		var pressed = false;
 		var gravity = true;
-		var water = false;
+		var wireframe = false;
 		var debug = false;
 		var clearBuffer = true;
 		var horizontalCheck = true;
 
 		var cardImage = new Image();
 		cardImage.src = "cards.png";
+
+		// Override default right click behaviour to prevent popup
+		document.oncontextmenu=RightMouseDown;
+		function RightMouseDown() { return false;}
 
 		function updateCanvasSizes() {
 			canvas.height = window.innerHeight;
@@ -94,32 +196,24 @@
 
 			if (canvas.getContext) {
 				document.getElementById("game").appendChild(canvas);
-				ctx = canvas.getContext("2d");
+				ctx = canvas.getContext("2d", { alpha: false });
 				ctx.save();
 
-				offscreenCtx = offScreenCanvas.getContext("2d");
+				// Setup offscreen buffer
+				offscreenCtx = offScreenCanvas.getContext("2d", { alpha: false });
 				offscreenCtx.save();
+				offscreenCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+				offscreenCtx.fillStyle = "#0b8b36";
+				offscreenCtx.fillRect(0, 0, canvasWidth, canvasHeight);
 
 				lastTime = (new (Date)).getTime();
 				frames = totalTime = updateTime = updateFrames = 0;
 
 				window.scrollTo(-1 ,0 );
 
-				offscreenCtx.clearRect(0, 0, canvasWidth, canvasHeight);
-				offscreenCtx.fillStyle = "#0b8b36";
-				offscreenCtx.fillRect(0, 0, canvasWidth, canvasHeight);
-
 				GameLoop();
 			}
 			else alert("Unsupported");
-		}
-
-		var requestAnimFrame =  window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function(/* function */ callback){
-			window.setTimeout(callback, 1000 / 60);
-		};
-
-		function GameUpdate(delta) {
-
 		}
 
 		function GameLoop() {
@@ -127,13 +221,12 @@
 			var delta = now - then;
 
 			if (clearBuffer) {
-				offscreenCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 				offscreenCtx.fillStyle = "#0b8b36";
 				offscreenCtx.fillRect(0, 0, canvasWidth, canvasHeight);
 			} else {
-				offscreenCtx.clearRect(0, 0, 300, 25);
+				// Clear box behind Debug data
 				offscreenCtx.fillStyle = "#0b8b36";
-				offscreenCtx.fillRect(0, 0, 300, 25);
+				offscreenCtx.fillRect(0, 0, 300, 70);
 			}
 			var now = (new Date()).getTime();
 			var deltaFPS;
@@ -145,19 +238,15 @@
 			updateTime += deltaFPS;
 			updateFrames++;
 
-			GameUpdate(delta / 1000);
-
 			updateCards();
-
 			renderCards();
-
-			drawString("FPS Avg: " + Math.round(1000 * frames / totalTime) + " Cur: " + curAmount + " Card Count: " + cards.length + " Gravity: " + gravity, 5, 20, 12);
+			drawHudText();
 
 			// Draw offscreen buffer;
 			ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 			ctx.drawImage(offScreenCanvas, 0, 0);
 
-			if(updateTime > 1000) {
+			if (updateTime > 1000) {
 				updateTime = 0;
 				updateFrames = 0;
 			}			
@@ -169,131 +258,48 @@
 				curAmount = lastCurAmount;
 
 			then = now;				
-			requestAnimFrame(GameLoop);				
+			requestAnimationFrame(GameLoop);
 		}
 
-		function drawString(textIn,xIn,yIn, sizeIn) {
+		function drawHudText() {
 			offscreenCtx.fillStyle = "white";				
-			offscreenCtx.font= "bold " + sizeIn + "px Arial";
+			offscreenCtx.font= "bold 12px Arial";
 			offscreenCtx.textBaseline = "bottom";
-			offscreenCtx.fillText(textIn, xIn, yIn);
+
+			let fpsText = `FPS Avg: ${Math.round(1000 * frames / totalTime)} Cur: ${curAmount} Card Count: ${cards.length}`;
+			offscreenCtx.fillText(fpsText, 5, 20);
+
+			let gText = `(G)ravity: ${(gravity ? 'On' : 'Off')}`;
+			offscreenCtx.fillText(gText, 5, 35);
+
+			let xText = `(X)ray: ${(wireframe ? 'On' : 'Off')}`;
+			offscreenCtx.fillText(xText, 5, 50);
+
+			let cText = `(C)lear BG: ${(clearBuffer ? 'On' : 'Off')}`;
+			offscreenCtx.fillText(cText, 5, 65);
+
+			let wText = `(W)alls: ${(horizontalCheck ? 'On' : 'Off')}`;
+			offscreenCtx.fillText(wText, 5, 80);
 		}
 
-		// Cards
 		function renderCards() {
-			for (var i = 0; i < cards.length; i++) {
-				cards[i].render();
+			for (let card of cards) {
+				card.render();
 			}
 		}
 
 		function updateCards() {
-			for (var i = 0; i < cards.length; i++) {
-				cards[i].update();
+			for (let card of cards) {
+				card.update();
 			}
 		}
 
-		function Card(x, y, id) {
-
-			var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
-			this.x = x;
-			this.y = y;
-			this.active = true;
-			this.id = id;
-			this.vx = (Math.floor( (Math.random() * 10) + 2 ))   *    plusOrMinus;
-			this.vy = Math.floor( (Math.random() * 16) - 2);
-			this.colour = Math.floor(Math.random() * 3) + 1;
-			this.that = this;
-			this.life = 150;
-
-			this.cardFace = Math.floor(Math.random() * 13);
-			this.cardSuit = Math.floor(Math.random() * 3);
-
-			// Use card deck
-			if (cardDeck == 0)
-				cardDeck = 52;
-			else 
-				cardDeck--;
-
-			this.cardFace = Math.floor(cardDeck * 0.25);
-			this.cardSuit = Math.floor(cardDeck % 4);
-
-			// Calculate card face - 13 max
-			this.cardX = cardSizeX * this.cardFace;
-			this.cardY = cardSizeY * this.cardSuit;
-
-			this.update = function() {
-				if (!this.active) return;
-
-				if (this.life <= 0)
-					this.remove();
-
-				if (gravity) {
-
-					this.x += this.vx;
-					this.y += this.vy;
-
-					// Vertical collision
-					if ( this.y + cardSizeY >= canvasHeight) {
-						this.vy *= -.75;
-						this.y = canvasHeight - 1 - cardSizeY;
-					}
-
-					// Horizontal Collision
-					if (horizontalCheck) {
-						if (Math.abs(this.vy) >= 2 && this.x + cardSizeX >= canvasWidth) {
-							this.x = canvasWidth - 1 - cardSizeX;
-							this.vx *= -.75;
-						}
-
-						if (this.x <= 0 && Math.abs(this.vy) >= 2) {
-							this.vx *= -.75;
-							this.x = 1;
-						}
-					}
-
-					
-					this.vy += Math.random();
-	
-				}
-
-				this.checkBounds();
-			}
-
-			this.checkBounds = function() {
-				if (this.x + cardSizeX < 0 || this.x > canvasWidth)
-					this.remove();
-
-				if (this.y < 0 || this.y + (cardSizeY * 0.5) > canvasHeight)
-					this.remove();
-
-			}
-
-			this.render = function() {
-				if (!this.active) return;
-
-				offscreenCtx.drawImage(cardImage, Math.floor(this.cardX), Math.floor(this.cardY), cardSizeX, cardSizeY, Math.floor(this.x), Math.floor(this.y), cardSizeX, cardSizeY);
-
-				if (debug) {
-					drawString("VX:" + this.vx, this.x + cardSizeX / 2 - 25, this.y + cardSizeY / 2, 12);
-					drawString("VY:" + Math.abs(this.vy), this.x + cardSizeX / 2 - 25, this.y + 20 + cardSizeY / 2, 12);
-					drawString("L:" + this.life, this.x + cardSizeX / 2 - 25, this.y - 40 + cardSizeY / 2, 12);
-				}
-			}
-
-			this.remove = function() {
-				this.active = false;
-				var i = cards.indexOf(this.that);
-				cards.splice(i, 1);
-			}
-		}
-
-		function addCard(x,y,id, gravity) {
-			var c = new Card(x,y,id, gravity);
-			cards.push(c);
+		function addCard(x,y) {
+			cards.push(new Card(x,y));
 		}
 
 		function cardExplosion() {
-			for(var i = 1, l = 52; i < l; i++) {
+			for (var i = 1, l = 52; i < l; i++) {
 				setTimeout( function() {
 					addCard(canvasHalfWidth, explosionTop, i);
 				}, 20 * i);
@@ -346,29 +352,13 @@
 			});
 
 			$(document).on("keydown", function(e) {
-
-				// If Space pressed
-				if (e.keyCode == 32) {
-					clearScreen();
-				}
-
-				if (e.keyCode == 71) // G Key 
-					gravity = !gravity;
-
-				if (e.keyCode == 87) // W Key
-					water = !water;
-
-				if (e.keyCode == 68) // D Key
-					debug = !debug;
-
-				if (e.keyCode == 66) // B Key
-					clearBuffer = !clearBuffer;
-
-				if (e.keyCode == 13) // Enter Key
-					cardExplosion();
-
-				if (e.keyCode == 88) // X key
-					horizontalCheck = !horizontalCheck;
+				if (e.code === 'Space') clearScreen();
+				if (e.key === 'g') gravity = !gravity;
+				if (e.key === 'x') wireframe = !wireframe;
+				if (e.key === 'd') debug = !debug;
+				if (e.key === 'c') clearBuffer = !clearBuffer;
+				if (e.key === 'Enter') cardExplosion();
+				if (e.key === 'w') horizontalCheck = !horizontalCheck;
 			});
 
 			$(window).resize(function() {
